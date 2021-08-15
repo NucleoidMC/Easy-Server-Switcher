@@ -24,8 +24,8 @@ class Globals {
 	static def changelog = "Initial release"
 	static def loaderVersion = "0.11.6"
 	static def versionInfo = [
-			new MinecraftVersion("1.17.1", "38", "0.11.6", "0.37.2+1.17", "0.5-pre29+1.17.1"),
-			new MinecraftVersion("1.16.5", "10", "0.11.6", "0.37.2+1.16", "0.4.146")
+			new MinecraftVersion("1.17.1", "38", "0.37.2+1.17", "0.5-pre29+1.17.1"),
+			new MinecraftVersion("1.16.5", "10", "0.37.2+1.16", "0.4.146")
 	]
 }
 
@@ -49,7 +49,7 @@ allprojects {
 	apply plugin: 'java-library'
 	apply plugin: 'fabric-loom'
 
-	∕∕ 1.16.5 is still on java 8.
+	// 1.16.5 is still on java 8.
 	tasks.withType(JavaCompile).configureEach {
 		it.options.release = 8 
 	}
@@ -61,12 +61,10 @@ allprojects {
 	dependencies {
 		minecraft "com.mojang:minecraft:${versionInfo.mcVersion}"
 		mappings "net.fabricmc:yarn:${versionInfo.mcVersion}+build.${versionInfo.yarnVersion}:v2"
+		modApi "net.fabricmc:fabric-loader:${Globals.loaderVersion}"
 		if (projectName != "common") {
-			modApi "net.fabricmc:fabric-loader:${versionInfo.loaderVersion}"
 			modImplementation "net.fabricmc.fabric-api:fabric-api:${versionInfo.apiVersion}"
 			modImplementation "xyz.nucleoid:plasmid:${versionInfo.plasmidVersion}"
-		} else {
-			modApi "net.fabricmc:fabric-loader:${versionInfo.loaderVersion}"
 		}
 	}
 
