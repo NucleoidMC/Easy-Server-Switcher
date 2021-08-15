@@ -1,0 +1,11 @@
+{
+    "schemaVersion": 1,
+    "id": "ess",
+    "name": "Easy Server Switcher",
+    "description": "",
+    "environment": "server",
+    "version": "${version}",
+    "authors": [
+        "arthurbambou (aka. Cat Core)"
+    ]
+}

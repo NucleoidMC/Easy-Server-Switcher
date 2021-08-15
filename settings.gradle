@@ -1,0 +1,21 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        maven {
+            name = 'Fabric'
+            url = 'https://maven.fabricmc.net/'
+        }
+        mavenLocal()
+        maven {
+            name = 'Jitpack'
+            url = 'https://jitpack.io'
+        }
+    }
+}
+
+rootProject.name = "Easy-Server-Switch"
+
+include 'common'
+
+include '1.17.1'
+include '1.16.5'

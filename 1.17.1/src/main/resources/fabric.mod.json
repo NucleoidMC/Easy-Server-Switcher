@@ -1,0 +1,11 @@
+{
+    "schemaVersion": 1,
+    "id": "ess_1_17_1",
+    "name": "Easy Server Switcher 1.17.1 Module",
+    "description": "",
+    "environment": "server",
+    "version": "${version}",
+    "authors": [
+        "arthurbambou (aka. Cat Core)"
+    ]
+}

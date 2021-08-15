@@ -1,0 +1,137 @@
+plugins {
+	id 'java-library'
+	id 'eclipse'
+	id 'idea'
+	id 'fabric-loom' version '0.9-SNAPSHOT' apply false
+}
+
+class MinecraftVersion {
+	String mcVersion
+	String yarnVersion
+	String apiVersion
+	String plasmidVersion
+
+	MinecraftVersion(String mcVersion, String yarnVersion, String apiVersion, String plasmidVersion) {
+		this.mcVersion = mcVersion
+		this.yarnVersion = yarnVersion
+		this.apiVersion = apiVersion
+		this.plasmidVersion = plasmidVersion
+	}
+}
+
+class Globals {
+	static def baseVersion = "0.1.0"
+	static def changelog = "Initial release"
+	static def loaderVersion = "0.11.6"
+	static def versionInfo = [
+			new MinecraftVersion("1.17.1", "38", "0.11.6", "0.37.2+1.17", "0.5-pre29+1.17.1"),
+			new MinecraftVersion("1.16.5", "10", "0.11.6", "0.37.2+1.16", "0.4.146")
+	]
+}
+
+version = Globals.baseVersion
+
+static def getSubprojectVersion() {
+	return Globals.baseVersion
+}
+
+static MinecraftVersion getVersionInfo(String project_name) {
+	def version_info = Globals.versionInfo[0]
+	for (MinecraftVersion minecraftVersion : Globals.versionInfo) {
+		if (minecraftVersion.mcVersion == project_name) version_info = minecraftVersion
+	}
+	return version_info
+}
+
+allprojects {
+
+	def projectName = it.name;
+	apply plugin: 'java-library'
+	apply plugin: 'fabric-loom'
+
+	∕∕ 1.16.5 is still on java 8.
+	tasks.withType(JavaCompile).configureEach {
+		it.options.release = 8 
+	}
+
+	group = "fr.catcore"
+
+	def versionInfo = getVersionInfo(projectName)
+
+	dependencies {
+		minecraft "com.mojang:minecraft:${versionInfo.mcVersion}"
+		mappings "net.fabricmc:yarn:${versionInfo.mcVersion}+build.${versionInfo.yarnVersion}:v2"
+		if (projectName != "common") {
+			modApi "net.fabricmc:fabric-loader:${versionInfo.loaderVersion}"
+			modImplementation "net.fabricmc.fabric-api:fabric-api:${versionInfo.apiVersion}"
+			modImplementation "xyz.nucleoid:plasmid:${versionInfo.plasmidVersion}"
+		} else {
+			modApi "net.fabricmc:fabric-loader:${versionInfo.loaderVersion}"
+		}
+	}
+
+	configurations {
+		dev
+	}
+
+	repositories {
+		mavenLocal()
+		mavenCentral()
+		maven {
+			name 'm2-dv8tion'
+			url 'https://m2.dv8tion.net/releases'
+		}
+		maven {
+			name = 'Fabric'
+			url = 'https://maven.fabricmc.net/'
+		}
+		maven { 
+			name = "Nucleoid"
+			url = "https://maven.nucleoid.xyz/"
+		}
+	}
+
+	jar {
+		archiveClassifier.set("dev")
+	}
+
+	afterEvaluate {
+		remapJar {
+			input = file("${project.buildDir}/libs/$archivesBaseName-${archiveVersion.get()}-dev.jar")
+			archiveFileName = "${archivesBaseName}-${archiveVersion.get()}.jar"
+		}
+
+		artifacts {
+			dev file: file("${project.buildDir}/libs/$archivesBaseName-${version}-dev.jar"), type: "jar", builtBy: jar
+		}
+
+		processResources {
+			inputs.property "version", project.version
+
+			filesMatching("fabric.mod.json") {
+				expand "version": project.version
+			}
+		}
+	}
+
+	task sourcesJar(type: Jar, dependsOn: classes) {
+		archiveClassifier = "sources"
+		from sourceSets.main.allSource
+	}
+
+	tasks.withType(AbstractArchiveTask) {
+		preserveFileTimestamps = false
+		reproducibleFileOrder = true
+	}
+}
+
+subprojects.each { remapJar.dependsOn("${it.path}:remapJar") }
+
+dependencies {
+	afterEvaluate {
+		subprojects.each {
+			api project(path: ":${it.name}", configuration: "dev")
+			include project("${it.name}:")
+		}
+	}
+}

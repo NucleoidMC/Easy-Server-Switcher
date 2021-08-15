@@ -1,0 +1,5 @@
+archivesBaseName = "common"
+version = getSubprojectVersion()
+
+dependencies {
+}
