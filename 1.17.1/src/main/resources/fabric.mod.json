@@ -7,5 +7,10 @@
     "version": "${version}",
     "authors": [
         "arthurbambou (aka. Cat Core)"
-    ]
+    ],
+    "entrypoints": {
+        "main": [
+            "fr.catcore.ess1_17_1.ESS1_17"
+        ]
+    }
 }
