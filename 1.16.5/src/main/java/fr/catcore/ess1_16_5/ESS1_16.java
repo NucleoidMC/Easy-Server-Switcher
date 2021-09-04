@@ -48,6 +48,7 @@ public class ESS1_16 implements ModInitializer {
         } catch (IOException e) {
             throw new UncheckedIOException(e); // this should never happen with a ByteArrayOutputStream
         }
-        return (PacketByteBuf) buf.writeBytes(baos.toByteArray());
+        buf.writeBytes(baos.toByteArray());
+        return buf;
     }
 }
