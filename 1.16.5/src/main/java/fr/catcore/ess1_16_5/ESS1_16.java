@@ -5,6 +5,7 @@ import io.netty.buffer.Unpooled;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
@@ -19,6 +20,9 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 
 public class ESS1_16 implements ModInitializer {
+
+    private Item SWITCHER;
+
     @Override
     public void onInitialize() {
         if (VersionHandler.is1_16()) {
@@ -28,10 +32,10 @@ public class ESS1_16 implements ModInitializer {
                     ServerPlayNetworking.send(playerEntity, new Identifier("nucleoid:switch_server"), writeString(new PacketByteBuf(Unpooled.buffer()), serverName));
                 }
             };
-            Registry.register(Registry.ITEM, new Identifier("ess", "switcher"), new SwitchItem());
+            SWITCHER = Registry.register(Registry.ITEM, new Identifier("ess", "switcher"), new SwitchItem());
             ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-                if (!handler.player.inventory.contains(new ItemStack(new SwitchItem()))) {
-                    handler.player.inventory.insertStack(new ItemStack(new SwitchItem()));
+                if (!handler.player.inventory.contains(new ItemStack(SWITCHER))) {
+                    handler.player.inventory.insertStack(new ItemStack(SWITCHER));
                 }
             });
         }

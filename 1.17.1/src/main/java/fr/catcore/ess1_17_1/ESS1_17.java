@@ -6,6 +6,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.impl.networking.ServerSidePacketRegistryImpl;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
@@ -20,6 +21,9 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 
 public class ESS1_17 implements ModInitializer {
+
+    private Item SWITCHER;
+
     @Override
     public void onInitialize() {
         if (VersionHandler.is1_17()) {
@@ -27,16 +31,13 @@ public class ESS1_17 implements ModInitializer {
                 if (obj instanceof ServerPlayerEntity) {
                     ServerPlayerEntity playerEntity = (ServerPlayerEntity) obj;
                     ServerPlayNetworking.send(playerEntity, new Identifier("nucleoid:switch_server"), writeString(new PacketByteBuf(Unpooled.buffer()), serverName));
-//                    playerEntity.networkHandler.sendPacket(new CustomPayloadS2CPacket(new Identifier("nucleoid:switch_server"),
-//                            ));
                 }
             };
-            Registry.register(Registry.ITEM, new Identifier("ess", "switcher"), new SwitchItem());
-//            ServerSidePacketRegistryImpl.INSTANCE.register(new Identifier("nucleoid:switch_server"),);
+            SWITCHER = Registry.register(Registry.ITEM, new Identifier("ess", "switcher"), new SwitchItem());
 
             ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-                if (!handler.getPlayer().getInventory().contains(new ItemStack(new SwitchItem()))) {
-                    handler.getPlayer().getInventory().insertStack(new ItemStack(new SwitchItem()));
+                if (!handler.getPlayer().getInventory().contains(new ItemStack(SWITCHER))) {
+                    handler.getPlayer().getInventory().insertStack(new ItemStack(SWITCHER));
                 }
             });
         }
