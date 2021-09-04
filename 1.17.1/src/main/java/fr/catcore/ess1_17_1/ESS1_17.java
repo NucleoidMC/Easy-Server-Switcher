@@ -11,6 +11,10 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 
 public class ESS1_17 implements ModInitializer {
@@ -21,7 +25,7 @@ public class ESS1_17 implements ModInitializer {
                 if (obj instanceof ServerPlayerEntity) {
                     ServerPlayerEntity playerEntity = (ServerPlayerEntity) obj;
                     playerEntity.networkHandler.sendPacket(new CustomPayloadS2CPacket(new Identifier("nucleoid:switch_server"),
-                            (PacketByteBuf) new PacketByteBuf(Unpooled.buffer()).writeBytes(serverName.getBytes(StandardCharsets.UTF_8))));
+                            writeString(new PacketByteBuf(Unpooled.buffer()), serverName)));
                 }
             };
             Registry.register(Registry.ITEM, new Identifier("ess", "switcher"), new SwitchItem());
@@ -31,5 +35,16 @@ public class ESS1_17 implements ModInitializer {
                 }
             });
         }
+    }
+
+    public static PacketByteBuf writeString(PacketByteBuf buf, String s) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            new DataOutputStream(baos).writeUTF(s);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e); // this should never happen with a ByteArrayOutputStream
+        }
+        buf.writeBytes(baos.toByteArray());
+        return buf;
     }
 }
