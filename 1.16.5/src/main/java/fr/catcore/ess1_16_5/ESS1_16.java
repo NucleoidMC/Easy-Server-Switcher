@@ -4,6 +4,7 @@ import fr.catcore.ess_common.VersionHandler;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
@@ -24,8 +25,7 @@ public class ESS1_16 implements ModInitializer {
             VersionHandler.packetSender = (serverName, obj) -> {
                 if (obj instanceof ServerPlayerEntity) {
                     ServerPlayerEntity playerEntity = (ServerPlayerEntity) obj;
-                    playerEntity.networkHandler.sendPacket(new CustomPayloadS2CPacket(new Identifier("nucleoid:switch_server"),
-                            writeString(new PacketByteBuf(Unpooled.buffer()), serverName)));
+                    ServerPlayNetworking.send(playerEntity, new Identifier("nucleoid:switch_server"), writeString(new PacketByteBuf(Unpooled.buffer()), serverName));
                 }
             };
             Registry.register(Registry.ITEM, new Identifier("ess", "switcher"), new SwitchItem());
@@ -44,7 +44,6 @@ public class ESS1_16 implements ModInitializer {
         } catch (IOException e) {
             throw new UncheckedIOException(e); // this should never happen with a ByteArrayOutputStream
         }
-        buf.writeBytes(baos.toByteArray());
-        return buf;
+        return (PacketByteBuf) buf.writeBytes(baos.toByteArray());
     }
 }
