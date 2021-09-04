@@ -4,7 +4,7 @@ import net.fabricmc.loader.api.FabricLoader;
 
 public class VersionHandler {
 
-    public static RunCommand runCommand;
+    public static PacketSender packetSender;
 
     public static boolean is1_17() {
         return FabricLoader.getInstance().getModContainer("minecraft").get().getMetadata().getVersion().getFriendlyString().startsWith("1.17");
@@ -15,11 +15,11 @@ public class VersionHandler {
     }
 
     public static void switchServer(Object player) {
-        String command = "/server " + (is1_17() ? "play" : "dev");
-        runCommand.runCommand(command, player);
+        String serverName = is1_17() ? "play" : "dev";
+        packetSender.sendPacket(serverName, player);
     }
 
-    public interface RunCommand {
-        void runCommand(String command, Object player);
+    public interface PacketSender {
+        void sendPacket(String serverName, Object player);
     }
 }
